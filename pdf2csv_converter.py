@@ -38,15 +38,12 @@ def extract_transactions_from_pdf(pdf_path):
 
     return transactions
 
-def write_to_csv(transactions, csv_path):
+def write_to_csv(transactions, pdf_path):
     csv_path = pdf_path.replace('Monthly_Statements', 'Monthly_Transactions').replace('.pdf', '.csv')
     header = ['Date', 'Description', 'Amount', 'Balance']
     df = pd.DataFrame(transactions, columns=header)
     df.to_csv(csv_path, index=False)
     print(f'Transactions have been successfully written to {csv_path}')
+    return csv_path
 
-
-if __name__ == "__main__":
-    pdf_path = input("Please enter file path to your statement pdf file: ")
-    transactions = extract_transactions_from_pdf(pdf_path)
-    write_to_csv(transactions, pdf_path)
+    
