@@ -1,7 +1,5 @@
 import pdfplumber
-import csv
 import re
-import os
 import pandas as pd
 
 def extract_transactions_from_pdf(pdf_path):
