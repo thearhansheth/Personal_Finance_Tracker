@@ -19,28 +19,24 @@ def extract_transactions_from_pdf(pdf_path):
     checking_text = text[checking_start:savings_start]
     balance = checking_text.find("TRANSACTION DETAIL")
     end_balance = checking_text.find("CHASE SAVINGS")
-    calcs = checking_text[balance:end_balance]
-    print(calcs)
 
-    # Extracting transactions from the Checking Summary section
-    transactions = re.findall(
-        r'(\d{2}/\d{2})\s+(.+?)\s+(-?\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s+(-?\$\d{1,3}(?:,\d{3})*(?:\.\d{2})?)',
-        calcs
-    )
+    transaction_text = checking_text[balance:end_balance]
+    lines = transaction_text.split('\n')
+    
+    transactions = []
+    for line in lines:
+        match = re.match(r'(\d{2}/\d{2})\s+(.+?)\s+(-?\$?\d{1,3}(?:,\d{3})*(?:\.\d{2})?)\s+(-?\$?\d{1,3}(?:,\d{3})*(?:\.\d{2})?)', line)
+        if match:
+            date, description, amount, balance = match.groups()
+            amount = amount.replace(',', '').replace('$', '')
+            balance = balance.replace(',', '').replace('$', '')
 
-    parsed_transactions = []
-    for date, description, amount, balance in transactions:
-        # Cleaning up the amount and balance
-        amount = amount.replace(',', '').replace('$', '')
-        balance = balance.replace(',', '').replace('$', '')
+            if '-' in amount:
+                amount = '-' + amount.replace('-', '').strip()
 
-        if '-' in description:
-            description = description.replace('-', '').strip()
-            amount = '-' + amount
+            transactions.append([date, description.strip(), amount, balance])
 
-        parsed_transactions.append([date, description.strip(), amount, balance])
-
-    return parsed_transactions
+    return transactions
 
 def write_to_csv(transactions, csv_path):
     csv_path = pdf_path.replace('Monthly_Statements', 'Monthly_Transactions').replace('.pdf', '.csv')
